@@ -222,8 +222,24 @@ io.on('connection', (socket) => {
         // Отправляем обновленный список игроков всем участникам комнаты
         io.to(roomId).emit('updatePlayers', rooms[roomId].players);
     
-        // Всегда отправляем текущее состояние игры новому пользователю
-        socket.emit('updateGameState', rooms[roomId]);
+        // Отправляем полное состояние игры новому пользователю
+        const gameState = {
+            words: rooms[roomId].words,
+            cardColors: rooms[roomId].cardColors,
+            leaders: rooms[roomId].leaders,
+            teamPlayers: rooms[roomId].teamPlayers,
+            teamNames: rooms[roomId].teamNames,
+            canAssistantsSelectCards: rooms[roomId].canAssistantsSelectCards,
+            canCaptainChat: rooms[roomId].canCaptainChat,
+            hasSentMessage: rooms[roomId].hasSentMessage,
+            currentTurn: rooms[roomId].currentTurn,
+            currentRound: rooms[roomId].currentRound,
+            timer: rooms[roomId].timer,
+            board: rooms[roomId].board,
+            isGameStarted: rooms[roomId].isGameStarted
+        };
+    
+        socket.emit('updateGameState', gameState);
     
         // Отправляем подтверждение о присоединении к комнате
         socket.emit('roomJoined', roomId);
