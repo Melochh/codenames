@@ -206,23 +206,16 @@ io.on('connection', (socket) => {
     
 
     socket.on('joinRoom', (roomId, nickname, color) => {
-        console.log(`Пользователь ${nickname} пытается присоединиться к комнате ${roomId}`);
-    
-        // Проверка, существует ли комната с таким ID
         if (!rooms[roomId]) {
-            console.log(`Комната ${roomId} не существует`);
-            socket.emit('roomNotFound', roomId); // Отправляем ошибку клиенту
+            socket.emit('roomNotFound', roomId);
             return;
         }
     
-        // Присоединяем пользователя к комнате
         rooms[roomId].players.push({ id: socket.id, nickname, color });
         socket.join(roomId);
     
-        // Отправляем обновленный список игроков всем участникам комнаты
         io.to(roomId).emit('updatePlayers', rooms[roomId].players);
     
-        // Формируем полное состояние игры для нового пользователя
         const gameState = {
             words: rooms[roomId].words,
             cardColors: rooms[roomId].cardColors,
@@ -237,24 +230,20 @@ io.on('connection', (socket) => {
             timer: rooms[roomId].timer,
             board: rooms[roomId].board,
             isGameStarted: rooms[roomId].isGameStarted,
-            settings: rooms[roomId].settings // Добавляем настройки игры
+            settings: rooms[roomId].settings
         };
     
-        // Отправляем полное состояние игры новому пользователю
         socket.emit('updateGameState', gameState);
     
-        // Если игра уже начата, отправляем текущий таймер и раунд
         if (rooms[roomId].isGameStarted) {
-            socket.emit('startLeaderTimer', rooms[roomId].settings.leaderTime || 60); // Время для капитана
+            socket.emit('startLeaderTimer', rooms[roomId].settings.leaderTime || 60);
             socket.emit('updateRoundDisplay', {
                 currentRound: rooms[roomId].currentRound,
                 currentTurn: rooms[roomId].currentTurn
             });
         }
     
-        // Отправляем подтверждение о присоединении к комнате
         socket.emit('roomJoined', roomId);
-        console.log(`Пользователь ${nickname} присоединился к комнате ${roomId}`);
     });
     
     function clearRole(team, player, room) {
