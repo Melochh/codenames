@@ -1733,15 +1733,7 @@ function updateChatVisibility() {
 
     console.log(`Обновление видимости чатов. canCaptainChat:`, window.canCaptainChat);
 
-    // Показываем чаты и поля ввода, если игра начата
-    if (gameState.isGameStarted) {
-        chatContainerBeta.classList.remove('hidden');
-        chatContainerAlpha.classList.remove('hidden');
-        chatInputContainerBeta.classList.remove('hidden');
-        chatInputContainerAlpha.classList.remove('hidden');
-    }
-    
-    // Показываем чаты только после старта игры
+        // Показываем чаты только после старта игры
     if (chatContainerBeta && chatContainerAlpha) {
         chatContainerBeta.style.display = 'block';
         chatContainerAlpha.style.display = 'block';
