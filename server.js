@@ -411,23 +411,32 @@ io.on('connection', (socket) => {
             const isAlphaLeaderSet = rooms[room].leaders['alpha'] && rooms[room].leaders['alpha'].name;
             const isBetaPlayersSet = rooms[room].teamPlayers['beta'] && rooms[room].teamPlayers['beta'].length > 0;
             const isAlphaPlayersSet = rooms[room].teamPlayers['alpha'] && rooms[room].teamPlayers['alpha'].length > 0;
-
+    
             const isAnySlotOccupied = isBetaLeaderSet || isAlphaLeaderSet || isBetaPlayersSet || isAlphaPlayersSet;
-
+    
             if (!isAnySlotOccupied) {
                 console.log(`Ни один слот не заполнен в комнате ${room}`);
                 socket.emit('error', 'Необходимо назначить хотя бы одного игрока (капитана или помощника).');
                 return;
             }
-
+    
+            // Обновляем состояние игры в комнате
             rooms[room].isGameStarted = true;
             rooms[room].canCaptainChat = { alpha: true, beta: true };
             rooms[room].hasSentMessage = false;
             rooms[room].words = gameState.words;
             rooms[room].cardColors = gameState.cardColors;
             rooms[room].currentTurn = 'beta';
-
+            rooms[room].currentRound = 1; // Сбрасываем раунд
+            rooms[room].timer = null; // Сбрасываем таймер
+    
+            // Отправляем обновленное состояние игры всем участникам комнаты
             io.to(room).emit('updateGameState', rooms[room]);
+    
+            // Запускаем таймер для капитана команды Бета
+            const leaderTime = rooms[room].settings.leaderTime || 60; // Время для капитана из настроек
+            io.to(room).emit('startLeaderTimer', leaderTime);
+    
             console.log(`Игра в комнате ${room} началась с состоянием:`, gameState);
         }
     });
