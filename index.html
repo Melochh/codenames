@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра Codenames</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hyphenopoly/Hyphenopoly_Loader.min.js"></script>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="Java.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+</head>
+
+<body>
+    <!-- Попап ввода никнейма -->
+    <div class="nickname-popup" id="nicknamePopup">
+        <div class="popup-content">
+            <h2>Введите ваш никнейм</h2>
+            <div class="nickname-input-container">
+                <input type="text" id="nicknameInput" placeholder="Ваш никнейм" autofocus>
+                <div class="selected-color-indicator" id="selectedColorIndicator" style="background-color: #ffffff;"></div>
+            </div>
+            <div class="color-palette">
+                <div class="color-option" style="background-color: #000000;" onclick="selectColor('#000000')"></div>
+                <div class="color-option" style="background-color: #00ff2f;" onclick="selectColor('#00ff2f')"></div>
+                <div class="color-option" style="background-color: #002fff;" onclick="selectColor('#002fff')"></div>
+                <div class="color-option" style="background-color: #ee00ff;" onclick="selectColor('#ee00ff')"></div>
+                <div class="color-option" style="background-color: #00fff2;" onclick="selectColor('#00fff2')"></div>
+                <div class="color-option" style="background-color: #ffee00;" onclick="selectColor('#ffee00')"></div>
+                <div class="color-option" style="background-color: #ff6600;" onclick="selectColor('#ff6600')"></div>
+                <div class="color-option" style="background-color: #8c00ff;" onclick="selectColor('#8c00ff')"></div>
+                <div class="color-option" style="background-color: #00b7ff;" onclick="selectColor('#00b7ff')"></div>
+                <div class="color-option" style="background-color: #ff0000;" onclick="selectColor('#ff0000')"></div>
+            </div>
+            <!-- Поле ввода для создания комнаты -->
+            <div class="room-action-container">
+                <input type="text" id="createRoomInput" placeholder="Название комнаты" class="room-input">
+            </div>
+            <!-- Кнопка присоединения к комнате -->
+            <div class="room-action-container">
+                <input type="text" id="joinRoomInput" placeholder="ID комнаты" class="room-input">
+            </div>
+            <button id="continueButton" onclick="submitNickname()">Продолжить</button>
+        </div>
+    </div>
+
+    <!-- Корневой элемент игры, который будет скрыт до ввода имени  -->
+    <div id="gameWrapper" class="game-wrapper hidden">
+        <div class="header">
+            <div class="round-display hidden" id="round-display">Раунд: <span id="roundNumber"></span> | Ход: <span id="currentTurn"></span></div>
+            <div class="timer-display hidden" id="timer-display">Время: сек</div>
+            <div class="game-title">Codenames by Meloch</div> <!-- Название игры -->
+            <div id="roomNameDisplay" class="room-name"></div> <!-- Название комнаты -->
+            <div id="playersList" class="players-list"></div> <!-- блок для списка игроков -->
+        </div>
+
+        <!-- Счетчики карт -->
+        <div class="card-counter" id="redCardsCounter">
+            <span id="redCardsRemaining">8</span>
+        </div>
+        <div class="card-counter" id="blueCardsCounter">
+            <span id="blueCardsRemaining">9</span>
+        </div>
+
+        <div class="game-container">
+            <!-- Команда 1 (Бета) -->
+            <div class="team team-left">
+                <div class="team-content">
+                    <!-- Название команды и кнопка редактирования -->
+                    <div class="team-name-container">
+                        <div class="team-name" id="team-name-beta">Бета</div>
+                        <input type="text" id="new-team-name-beta" class="new-team-name-input" style="display: none;">
+                        <button class="change-team-name-button" id="change-team-name-beta" onclick="changeTeamName('beta')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <!-- Слот капитана -->
+                    <div id="leader-slot-beta" class="leader-slot">
+                        <button class="leader-button1" onclick="setLeader('beta', nickname, selectedColor)">Стать капитаном</button>
+                        <span id="leader-beta" class="leader-name"></span>
+                    </div>
+                    <hr class="team-divider">
+                    <!-- Слоты помощников -->
+                    <div id="player-slot-beta-1" class="player-slot">
+                        <button class="player-button beta" onclick="setPlayer('beta', nickname, selectedColor, 1)">Стать помощником 1</button>
+                        <span id="player-beta-1" class="player-name"></span>
+                    </div>
+                    <div id="player-slot-beta-2" class="player-slot">
+                        <button class="player-button beta" onclick="setPlayer('beta', nickname, selectedColor, 2)">Стать помощником 2</button>
+                        <span id="player-beta-2" class="player-name"></span>
+                    </div>
+                </div>
+                <!-- Чат для капитана синей команды -->
+                <div id="chatContainerBeta" class="chat-container hidden">
+                    <div class="chat-box" id="chatBoxBeta"></div>
+                    <button class="skip-turn-button" onclick="skipTurn('beta')">Пропустить ход</button>
+                </div>
+                <!-- Поле ввода для капитана синей команды -->
+                <div id="chatInputContainerBeta" class="chat-input-container hidden">
+                    <input type="text" class="chat-input" id="chatInputBeta" placeholder="Введите сообщение...">
+                    <button class="chat-button" id="sendButtonBeta" onclick="sendMessage('beta')">Отправить</button>
+                </div>
+            </div>
+            
+            <!-- Доска -->
+            <div class="board" id="board"></div>
+            <!-- Слова будут добавлены здесь динамически -->
+            <div class="player-color-indicator" style="display: none;"></div> <!-- Индикатор цвета игрока -->
+            
+            <!-- Команда 2 (Альфа) -->
+            <div class="team team-right">
+                <div class="team-content">
+                    <!-- Название команды и кнопка редактирования -->
+                    <div class="team-name-container">
+                        <div class="team-name" id="team-name-alpha">Альфа</div>
+                        <input type="text" id="new-team-name-alpha" class="new-team-name-input" style="display: none;">
+                        <button class="change-team-name-button" id="change-team-name-alpha" onclick="changeTeamName('alpha')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <!-- Слот капитана -->
+                    <div id="leader-slot-alpha" class="leader-slot">
+                        <button class="leader-button2" onclick="setLeader('alpha', nickname, selectedColor)">Стать капитаном</button>
+                        <span id="leader-alpha" class="leader-name"></span>
+                    </div>
+                    <hr class="team-divider">
+                    <!-- Слоты помощников -->
+                    <div id="player-slot-alpha-1" class="player-slot">
+                        <button class="player-button alpha" onclick="setPlayer('alpha', nickname, selectedColor, 1)">Стать помощником 1</button>
+                        <span id="player-alpha-1" class="player-name"></span>
+                    </div>
+                    <div id="player-slot-alpha-2" class="player-slot">
+                        <button class="player-button alpha" onclick="setPlayer('alpha', nickname, selectedColor, 2)">Стать помощником 2</button>
+                        <span id="player-alpha-2" class="player-name"></span>
+                    </div>
+                </div>
+                <!-- Чат для капитана красной команды -->
+                <div id="chatContainerAlpha" class="chat-container hidden">
+                    <div class="chat-box" id="chatBoxAlpha"></div>
+                    <button class="skip-turn-button" onclick="skipTurn('alpha')">Пропустить ход</button>
+                </div>
+                <!-- Поле ввода для капитана красной команды -->
+                <div id="chatInputContainerAlpha" class="chat-input-container hidden">
+                    <input type="text" class="chat-input" id="chatInputAlpha" placeholder="Введите сообщение...">
+                    <button class="chat-button" id="sendButtonAlpha" onclick="sendMessage('alpha')">Отправить</button>
+                </div>
+            </div>
+
+        <!-- Кнопка настроек -->
+        <button class="settings-button" id="settingsButton" onclick="toggleSettings()">
+            <i class="fas fa-cog"></i>
+        </button>
+        <!-- Попап настроек -->
+        <div class="settings-popup" id="settingsPopup">
+            <h2>Настройки игры</h2>
+            <div class="setting-row">
+                <label for="leader-time">Время для лидера (сек):</label>
+                <input type="number" id="leader-time" value="60" min="1" max="3600">
+            </div>
+            <div class="setting-row">
+                <label for="answer-time">Время для ответа команды (сек):</label>
+                <input type="number" id="answer-time" value="30" min="1" max="3600">
+            </div>
+            <div class="setting-row">
+                <label for="bonus-time">Добавочное время за правильное слово (сек):</label>
+                <input type="number" id="bonus-time" value="10" min="1" max="3600">
+            </div>
+            <div class="setting-row">
+                <label for="rounds-count">Количество раундов (до 10):</label>
+                <input type="number" id="rounds-count" value="5" min="1" max="10">
+            </div>
+            <div class="setting-row">
+                <label for="difficulty-level">Уровень сложности:</label>
+                <select id="difficulty-level">
+                    <option value="easy">Легкий</option>
+                    <option value="medium">Средний</option>
+                    <option value="hard">Сложный</option>
+                </select>
+            </div>
+            <!-- Кнопки "Начать игру", "Перемешать" и "Сохранить" -->
+            <div class="button-row">
+                <div class="button-group">
+                    <button onclick="startGame()">Начать игру</button>
+                    <button onclick="generateBoard()" id="shuffleButton" disabled>Перемешать</button>
+                    <!-- Добавьте эту кнопку -->
+                    <button onclick="resetGame()">Сбросить игру</button>
+                </div>
+                <button onclick="saveSettings()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

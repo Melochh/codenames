@@ -1,0 +1,875 @@
+body {
+    font-family: Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    background-color: #52867f;
+    display: block;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-wrapper.hidden {
+    display: none;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh;
+    background-color: #52867f;
+}
+
+.game-title {
+    text-align: center;
+    font-size: 3em;
+    color: #333;
+}
+
+.room-name {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.game-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    min-width: 600px;
+}
+
+.players-list {
+    position: absolute;
+    top: 50px;
+    left: 10px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 16px;
+    max-width: 200px;
+}
+
+.players-list div {
+    margin-bottom: 5px;
+}
+
+.team {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 25%;
+    font-size: 1.5rem;
+    padding: 1em;
+    font-weight: bold;
+}
+
+.team-left {
+    margin-right: auto; /* Команда синих прижимается к левому краю */
+}
+
+.team-right {
+    margin-left: auto; /* Команда красных прижимается к правому краю */
+}
+
+.team-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Унифицированный отступ между элементами */
+}
+
+.team-name-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px; /* Отступ между названием команды и слотом лидера */
+}
+
+.leader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px; /* Отступ между слотом лидера и слотами помощников */
+}
+
+.leader-slot, .player-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+
+}
+
+.leader-name {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.leader-button1, .leader-button2 {
+    margin-top: 0;
+}
+
+.leader-button1 {
+    font-weight: bold;
+    padding: 10px 20px;
+    background-color: #3131d6;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.leader-button1:hover {
+    background-color: #001aff;
+}
+
+.leader-button2 {
+    font-weight: bold;
+    padding: 10px 20px;
+    background-color: #d33838;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.leader-button2:hover {
+    background-color: #cc0000;
+}
+
+.team-divider {
+    border: 0; /* Убираем стандартную границу */
+    height: 2px; /* Высота линии */
+    background-color: #000000; /* Цвет линии */
+    margin: 10px 0; /* Отступы сверху и снизу */
+    width: 100%; /* Ширина линии на всю ширину контейнера */
+}
+
+.team-name {
+    font-size: 24px;
+    text-align: center;
+}
+
+.team-name:hover .change-team-name-button {
+    display: block;
+}
+
+.change-team-name-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #000;
+}
+
+.player-name {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.player-button.alpha, .player-button.beta {
+    margin-top: 0;
+}
+
+.player-button.alpha {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #c45656;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.player-button.alpha:hover {
+    background-color: #993d3d;
+}
+
+.player-button.beta {
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #2e84b6;
+    color: white;
+    border: 2px solid #000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.player-button.beta:hover {
+    background-color: #0056b3;
+}
+
+.shuffle-button:hover {
+    background-color: #c82333;
+}
+
+.nickname-popup {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+}
+
+.popup-content {
+    background-color: rgb(105, 104, 104);
+    padding: 20px;
+    border-radius: 10px;
+    border: 5px solid #020101;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.popup-content h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #000000;
+}
+
+.popup-content input {
+    margin-bottom: 20px;
+    padding: 10px;
+    width: auto;
+    max-width: 200px;
+    border: 5px solid #000000;
+    border-radius: 5px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.popup-content button {
+    padding: 10px 20px;
+    background-color: #c76767;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    border: 2px solid #000000;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.popup-content button:hover {
+    background-color: #49b96e;
+}
+
+.color-palette {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.color-option {
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    border-radius: 7px;
+    border: 2px solid #ffffff;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.color-option:hover {
+    transform: scale(1.2);
+}
+
+.settings-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    background-color: #1f1f1f;
+    color: rgb(255, 255, 255);
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.settings-button:hover {
+    background-color: #414040;
+}
+
+.settings-button i {
+    font-size: 18px;
+    color: #48ff00;
+}
+
+.settings-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgb(160, 192, 147);
+    padding: 10px 60px;
+    border: 2px solid #00ff0d;
+    box-shadow: 2px 4px 6px rgb(255, 251, 3);
+    z-index: 1000;
+    border-radius: 10px;
+    width: 300px;
+}
+
+.settings-popup h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #000000;
+    text-align: center; /* Центрируем заголовок */
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.settings-popup .setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.settings-popup .setting-row label {
+    font-weight: bold;
+    margin: 0;
+    font-size: 16px;
+    color: #000000;
+}
+
+.settings-popup .setting-row input[type="number"] {
+    padding: 5px;
+    width: 50px; /* Фиксированная ширина для всех полей ввода */
+    border: 2px solid #00ff0d;
+    border-radius: 5px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.settings-popup .setting-row input[type="number"]:focus {
+    border-color: #00ff22;
+}
+
+#difficulty-level {
+    padding: 5px 8px;
+    border: 2px solid #00ff0d;
+    border-radius: 5px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align: center;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    min-width: 100px; /* Минимальная ширина */
+}
+
+#difficulty-level:hover {
+    border-color: #00ff22;
+    background-color: #f0f0f0;
+}
+
+#difficulty-level:focus {
+    border-color: #00ff22;
+    outline: none;
+}
+
+/* Стили для стрелки выпадающего списка */
+#difficulty-level {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%2300ff0d"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right -5px center;
+    background-size: 30px;
+}
+/* Стили для контейнера кнопок */
+.button-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем все элементы по горизонтали */
+    gap: 10px; /* Отступ между группами кнопок */
+}
+
+/* Стили для группы кнопок "Начать игру" и "Перемешать" */
+.button-group {
+    display: flex;
+    gap: 10px; /* Отступ между кнопками */
+}
+
+/* Общие стили для всех кнопок */
+.button-row button {
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 16px;
+    color: #000000;
+    margin: 5px;
+}
+
+/* Стиль для кнопки "Начать игру" */
+.button-row button[onclick="startGame()"] {
+    border: 2px solid #00ff22;
+    background-color: #30a5e9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.button-row button[onclick="startGame()"]:hover {
+    background-color: #28aaf5;
+    transform: translateY(-2px);
+}
+
+/* Стиль для кнопки "Перемешать" */
+.button-row button[onclick="generateBoard()"] {
+    border: 2px solid #00ff22;
+    background-color: #df3535;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.button-row button[onclick="generateBoard()"]:hover {
+    background-color: #c74848;
+    transform: translateY(-2px);
+}
+
+.button-row button[onclick="generateBoard()"]:disabled {
+    background-color: #a5a5a5;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.button-row button[onclick="generateBoard()"]:disabled:hover {
+    background-color: #a5a5a5;
+    transform: none;
+}
+
+.button-row button[onclick="resetGame()"] {
+    border: 2px solid #00ff22;
+    background-color: #ff4d4d;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.button-row button[onclick="resetGame()"]:hover {
+    background-color: #cc0000;
+    transform: translateY(-2px);
+}
+
+/* Стиль для кнопки "Сохранить" */
+.button-row button[onclick="saveSettings()"] {
+    border: 2px solid #00ff22;
+    background-color: #4CAF50;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    width: auto; /* Автоматическая ширина */
+    align-self: center; /* Центрируем кнопку внутри контейнера */
+}
+
+.button-row button[onclick="saveSettings()"]:hover {
+    background-color: #54f39c;
+    transform: translateY(-2px);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(5, 250px);
+    gap: 10px;
+}
+
+.card {
+    width: 220px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-align: center;
+    border: 3px solid #000;
+    border-radius: 10px;
+    background-color: #ffffff;
+    cursor: pointer;
+    box-shadow: 4px 6px 8px rgb(118, 245, 228);
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    position: relative;
+    padding: 5px; /* Добавление внутреннего отступа */
+}
+
+.card {
+    position: relative; /* Для позиционирования индикатора */
+    overflow: hidden; /* Чтобы индикатор не выходил за пределы карты */
+}
+
+.card-text {
+    transition: color 0.3s ease;
+    white-space: normal; /* Разрешение переноса текста */
+    overflow-wrap: break-word; /* Перенос длинных слов */
+    word-wrap: break-word; /* Альтернатива overflow-wrap */
+    text-align: center; /* Выравнивание текста по центру */
+    hyphens: auto; /* Автоматический перенос по правилам русского языка с дефисами */
+    word-break: break-all; /* Разрешение переноса слов на любом символе */
+    max-height: 100%; /* Ограничение максимальной высоты текста */
+    display: -webkit-box; /* Использование flexbox для ограничения строк */
+    -webkit-line-clamp: 3; /* Ограничение на 3 строки */
+    line-clamp: 3;
+    -webkit-box-orient: vertical; /* Вертикальное направление текста */
+    overflow: hidden; /* Скрытие переполненного текста */
+    font-size: 20px; /* Фиксированный размер шрифта */
+    padding: auto;
+}
+
+.card:hover {
+    transform: scale(1.01);
+}
+
+/* Цвета карточек */
+.card.hidden-color {
+    background-color: #ffffff !important; /* Белый фон */
+    border: 3px solid #000 !important; /* Черная рамка */
+}
+
+.card.red {
+    background-color: #ff4d4d !important; /* Красный */
+}
+
+.card.blue {
+    background-color: #4d94ff !important; /* Синий */
+}
+
+.card.neutral {
+    background-color: #a5a5a5 !important; /* Нейтральный */
+}
+
+.card.assassin {
+    background-color: #333 !important; /* Черный (убийца) */
+}
+
+.text-light {
+    color: #ffffff !important; /* Белый текст */
+}
+
+.text-dark {
+    color: #000000 !important; /* Черный текст */
+}
+
+.nickname-input-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    margin-left: 20px;
+}
+
+.selected-color-indicator {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #000000;
+    margin-left: 50px; 
+    margin-bottom: 20px; 
+    transition: border-color 0.3s ease; /* Добавляем плавную анимацию для бордюра */
+}
+
+/* Стили для чатов и полей ввода */
+.chat-container.hidden,
+.chat-input-container.hidden {
+    display: none; /* Скрываем, если есть класс hidden */
+    opacity: 0; /* Делаем полностью прозрачными */
+    transition: opacity 0.3s ease; /* Плавное появление */
+}
+
+/* Показываем чаты и поля ввода, когда они активны */
+.chat-container:not(.hidden),
+.chat-input-container:not(.hidden) {
+    display: block; /* Показываем */
+    opacity: 1; /* Делаем видимыми */
+}
+
+/* Стили для контейнера чата */
+.chat-container {
+    font-size: 15px;
+    color: #000000;
+    position: fixed;
+    bottom: 100px; /* Отступ снизу, чтобы оставить место для поля ввода */
+    width: 250px; /* Ширина чата */
+    border: 2px solid #000000;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000; /* Убедимся, что чаты поверх других элементов */
+}
+
+/* Чат для синей команды (Бета) */
+#chatContainerBeta {
+    left: 20px; /* Позиция слева */
+}
+
+/* Чат для красной команды (Альфа) */
+#chatContainerAlpha {
+    right: 20px; /* Позиция справа */
+}
+
+/* Стили для окна чата */
+.chat-box {
+    height: 150px; /* Уменьшенная высота чата */
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.skip-turn-button {
+    position: absolute;
+    left: 140px;
+    bottom: 5px;
+    right: 5px;
+    padding: 5px 10px;
+    background-color: #ffcc00;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.skip-turn-button:hover {
+    background-color: #e6b800;
+}
+
+/* Стили для контейнера ввода сообщения */
+.chat-input-container {
+    position: fixed;
+    bottom: 30px; /* Отступ снизу */
+    width: 300px; /* Ширина контейнера */
+    border: 2px solid #000000;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    padding: 10px;
+    z-index: 1000; /* Убедимся, что контейнер поверх других элементов */
+}
+
+/* Контейнер ввода для синей команды (Бета) */
+#chatInputContainerBeta {
+    left: 20px; /* Позиция слева */
+}
+
+/* Контейнер ввода для красной команды (Альфа) */
+#chatInputContainerAlpha {
+    right: 20px; /* Позиция справа */
+}
+
+/* Стили для поля ввода сообщения */
+.chat-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* Стили для кнопки отправки сообщения */
+.chat-button {
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    font-weight: bold;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chat-button:hover {
+    background-color: #45a049;
+}
+
+.card.selected {
+    border: 3px solid #ffcc00; /* Желтая рамка для выбранной карты */
+}
+
+.card.disabled {
+    opacity: 0.5; /* Затемнение карты */
+    pointer-events: none; /* Отключаем возможность выбора карты */
+}
+
+.indicators-container {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px; /* Отступ между индикаторами */
+}
+
+.player-color-indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    border: 1px solid #000;
+}
+
+.round-display.hidden, .timer-display.hidden {
+    display: none;
+}
+
+.round-display {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 25px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 10px;
+    display: flex;
+    gap: 10px; /* Отступ между раундом и ходом */
+}
+
+.timer-display {
+    position: absolute;
+    bottom: 50px;
+    bottom: center;
+    font-size: 16px; /* Увеличим размер шрифта */
+    font-weight: bold;
+    color: #000000;
+    background: linear-gradient(135deg, #ff6f61, #ffcc00); /* Градиентный фон */
+    padding: 10px 15px; /* Увеличим отступы */
+    border-radius: 15px; /* Закруглим углы */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Тень для объема */
+    border: 2px solid #000000; /* Белая рамка */
+    animation: pulse 1.5s infinite alternate; /* Анимация пульсации */
+}
+
+/* Анимация пульсации */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+/* Стиль для текста внутри таймера */
+.timer-display span {
+    font-family: 'Arial', sans-serif; /* Шрифт */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Тень для текста */
+}
+
+.progress-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: #00ff0d; /* Цвет полосы */
+    transition: width 3s linear; /* Анимация уменьшения ширины за 3 секунды */
+}
+
+#resetGameButton {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+#resetGameButton:hover {
+    background-color: #cc0000;
+}
+
+/* Стиль для центрированного сообщения */
+.centered-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px 40px;
+    border-radius: 10px;
+    z-index: 10000; /* Убедимся, что сообщение поверх всех элементов */
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Стиль для второго сообщения (о победе) */
+.centered-message.victory {
+    top: 60%; /* Располагаем ниже первого сообщения */
+}
+
+/* Анимация для плавного появления сообщения */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.card-counter {
+    position: fixed; /* Используем fixed, чтобы счетчики были привязаны к экрану */
+    bottom: 5px; /* Позиционируем по вертикали */
+    font-size: 150px; /* Очень крупный размер шрифта */
+    font-weight: bold;
+    background-color: transparent; /* Убираем фон, так как текст и так крупный */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: -1; /* Помещаем счетчики позади всех элементов */
+    opacity: 0.5; /* Делаем текст полупрозрачным, чтобы он не мешал */
+    pointer-events: none; /* Отключаем взаимодействие с этими элементами */
+}
+
+#redCardsCounter {
+    color: #ff0000;
+    right: 20%; /* Позиционируем красный счетчик справа */
+}
+
+#blueCardsCounter {
+    color: #0066ff;
+    left: 20%; /* Позиционируем синий счетчик слева */
+}
