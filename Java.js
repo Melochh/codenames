@@ -1230,30 +1230,84 @@ function updateUI() {
         console.error('Элемент leaderButtonAlpha не найден');
     }
 
-    const leaderAlphaElement = document.getElementById('leader-alpha');
+    // Обновляем отображение лидеров команд
     const leaderBetaElement = document.getElementById('leader-beta');
-    if (leaderAlphaElement && leaderBetaElement) {
-        leaderAlphaElement.textContent = gameState.leaders['alpha']?.name || '';
-        leaderAlphaElement.style.color = gameState.leaders['alpha']?.color || '#000';
-        leaderBetaElement.textContent = gameState.leaders['beta']?.name || '';
-        leaderBetaElement.style.color = gameState.leaders['beta']?.color || '#000';
+    if (leaderBetaElement) {
+        if (leaders['beta']) {
+            leaderBetaElement.textContent = leaders['beta'].name;
+            leaderBetaElement.style.color = leaders['beta'].color;
+        } else {
+            leaderBetaElement.textContent = '';
+        }
+    } else {
+        console.error('Элемент leader-beta не найден');
+    }
+
+    const leaderAlphaElement = document.getElementById('leader-alpha');
+    if (leaderAlphaElement) {
+        if (leaders['alpha']) {
+            leaderAlphaElement.textContent = leaders['alpha'].name;
+            leaderAlphaElement.style.color = leaders['alpha'].color;
+        } else {
+            leaderAlphaElement.textContent = '';
+        }
+    } else {
+        console.error('Элемент leader-alpha не найден');
     }
 
     // Обновляем отображение помощников команд
     const playerBeta1 = players['beta'] && players['beta'][0];
     const playerBeta2 = players['beta'] && players['beta'][1];
+
+    const playerBeta1Element = document.getElementById('player-beta-1');
+    if (playerBeta1Element) {
+        if (playerBeta1) {
+            playerBeta1Element.textContent = playerBeta1.name;
+            playerBeta1Element.style.color = playerBeta1.color;
+        } else {
+            playerBeta1Element.textContent = '';
+        }
+    } else {
+        console.error('Элемент player-beta-1 не найден');
+    }
+
+    const playerBeta2Element = document.getElementById('player-beta-2');
+    if (playerBeta2Element) {
+        if (playerBeta2) {
+            playerBeta2Element.textContent = playerBeta2.name;
+            playerBeta2Element.style.color = playerBeta2.color;
+        } else {
+            playerBeta2Element.textContent = '';
+        }
+    } else {
+        console.error('Элемент player-beta-2 не найден');
+    }
+
     const playerAlpha1 = players['alpha'] && players['alpha'][0];
     const playerAlpha2 = players['alpha'] && players['alpha'][1];
 
-    if (playerAlpha1 && playerAlpha2 && playerBeta1 && playerBeta2) {
-        playerAlpha1.textContent = gameState.teamPlayers['alpha']?.[0]?.name || '';
-        playerAlpha1.style.color = gameState.teamPlayers['alpha']?.[0]?.color || '#000';
-        playerAlpha2.textContent = gameState.teamPlayers['alpha']?.[1]?.name || '';
-        playerAlpha2.style.color = gameState.teamPlayers['alpha']?.[1]?.color || '#000';
-        playerBeta1.textContent = gameState.teamPlayers['beta']?.[0]?.name || '';
-        playerBeta1.style.color = gameState.teamPlayers['beta']?.[0]?.color || '#000';
-        playerBeta2.textContent = gameState.teamPlayers['beta']?.[1]?.name || '';
-        playerBeta2.style.color = gameState.teamPlayers['beta']?.[1]?.color || '#000';
+    const playerAlpha1Element = document.getElementById('player-alpha-1');
+    if (playerAlpha1Element) {
+        if (playerAlpha1) {
+            playerAlpha1Element.textContent = playerAlpha1.name;
+            playerAlpha1Element.style.color = playerAlpha1.color;
+        } else {
+            playerAlpha1Element.textContent = '';
+        }
+    } else {
+        console.error('Элемент player-alpha-1 не найден');
+    }
+
+    const playerAlpha2Element = document.getElementById('player-alpha-2');
+    if (playerAlpha2Element) {
+        if (playerAlpha2) {
+            playerAlpha2Element.textContent = playerAlpha2.name;
+            playerAlpha2Element.style.color = playerAlpha2.color;
+        } else {
+            playerAlpha2Element.textContent = '';
+        }
+    } else {
+        console.error('Элемент player-alpha-2 не найден');
     }
 
     // Обновляем видимость кнопок "Стать помощником"
@@ -1470,20 +1524,25 @@ socket.on('receiveMessage', (data) => {
 
 socket.on('updateGameState', (gameState) => {
     console.log('Received game state:', gameState);
+
     window.words = gameState.words || [];
     cardColors = gameState.cardColors || {};
     leaders = gameState.leaders || {};
     players = gameState.teamPlayers || {};
     teamNames = gameState.teamNames || {};
     window.canAssistantsSelectCards = gameState.canAssistantsSelectCards || false;
-    window.canCaptainChat = gameState.canCaptainChat || { alpha: true, beta: true };
+    window.canCaptainChat = gameState.canCaptainChat || { alpha: true, beta: true }; // Обновляем состояние canCaptainChat
+
+    // Проверяем, является ли текущий пользователь создателем комнаты
+    window.isCreator = gameState.creator === socket.id;
+
+    console.log(`Обновлено состояние canCaptainChat:`, window.canCaptainChat);
 
     // Обновляем текущий ход
     currentTurn = gameState.currentTurn || 'beta';
     hasSentMessage = gameState.hasSentMessage || false;
 
-    // Обновляем интерфейс
-    updateUI();
+
 
     // Если есть слова, обновляем доску
     if (window.words && window.words.length > 0) {
@@ -1500,9 +1559,14 @@ socket.on('updateGameState', (gameState) => {
             card.removeEventListener('click', handleCardClick);
         }
     });
-
-    // Обновляем отображение раунда
+ 
+    // Обновляем интерфейс
+    updateUI();
     updateRoundDisplay();
+    updateChatVisibility();
+    updateRoundDisplay(gameState.currentRound, gameState.currentTurn);
+    updateTimerDisplay(gameState.timer);
+
 });
 
 function updatePlayersList(players) {
@@ -1733,7 +1797,7 @@ function updateChatVisibility() {
 
     console.log(`Обновление видимости чатов. canCaptainChat:`, window.canCaptainChat);
 
-        // Показываем чаты только после старта игры
+    // Показываем чаты только после старта игры
     if (chatContainerBeta && chatContainerAlpha) {
         chatContainerBeta.style.display = 'block';
         chatContainerAlpha.style.display = 'block';
@@ -1747,10 +1811,12 @@ function updateChatVisibility() {
 
     if (chatInputContainerBeta) {
         const shouldShowBeta = isBetaLeader && currentTeam === 'beta' && window.canCaptainChat?.beta;
+        console.log(`Поле ввода для команды Бета: shouldShowBeta=${shouldShowBeta}`);
         chatInputContainerBeta.style.display = shouldShowBeta ? 'flex' : 'none';
     }
     if (chatInputContainerAlpha) {
         const shouldShowAlpha = isAlphaLeader && currentTeam === 'alpha' && window.canCaptainChat?.alpha;
+        console.log(`Поле ввода для команды Альфа: shouldShowAlpha=${shouldShowAlpha}`);
         chatInputContainerAlpha.style.display = shouldShowAlpha ? 'flex' : 'none';
     }
 
