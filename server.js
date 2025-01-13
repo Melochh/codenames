@@ -222,7 +222,7 @@ io.on('connection', (socket) => {
         // Отправляем обновленный список игроков всем участникам комнаты
         io.to(roomId).emit('updatePlayers', rooms[roomId].players);
     
-        // Отправляем полное состояние игры новому пользователю
+        // Формируем полное состояние игры для нового пользователя
         const gameState = {
             words: rooms[roomId].words,
             cardColors: rooms[roomId].cardColors,
@@ -236,10 +236,21 @@ io.on('connection', (socket) => {
             currentRound: rooms[roomId].currentRound,
             timer: rooms[roomId].timer,
             board: rooms[roomId].board,
-            isGameStarted: rooms[roomId].isGameStarted
+            isGameStarted: rooms[roomId].isGameStarted,
+            settings: rooms[roomId].settings // Добавляем настройки игры
         };
     
+        // Отправляем полное состояние игры новому пользователю
         socket.emit('updateGameState', gameState);
+    
+        // Если игра уже начата, отправляем текущий таймер и раунд
+        if (rooms[roomId].isGameStarted) {
+            socket.emit('startLeaderTimer', rooms[roomId].settings.leaderTime || 60); // Время для капитана
+            socket.emit('updateRoundDisplay', {
+                currentRound: rooms[roomId].currentRound,
+                currentTurn: rooms[roomId].currentTurn
+            });
+        }
     
         // Отправляем подтверждение о присоединении к комнате
         socket.emit('roomJoined', roomId);

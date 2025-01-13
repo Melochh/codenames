@@ -1411,6 +1411,16 @@ function saveSettings() {
     toggleSettings();
 }
 
+socket.on('startLeaderTimer', (time) => {
+    console.log('Запуск таймера для капитана:', time);
+    startLeaderTimer(time);
+});
+
+socket.on('updateRoundDisplay', (data) => {
+    console.log('Обновление отображения раунда:', data);
+    updateRoundDisplay(data.currentRound, data.currentTurn);
+});
+
 socket.on('error', (message) => {
     showToast(message, "#e74c3c"); // Показываем сообщение об ошибке
 });
@@ -1466,73 +1476,13 @@ socket.on('newRoundStarted', (team) => {
     }
 });
 
-socket.on('updateGameState', (gameState) => {
-    console.log('Received game state:', gameState);
-
-    window.words = gameState.words || [];
-    cardColors = gameState.cardColors || {};
-    leaders = gameState.leaders || {};
-    players = gameState.teamPlayers || {};
-    teamNames = gameState.teamNames || {};
-    window.canAssistantsSelectCards = gameState.canAssistantsSelectCards || false;
-    window.canCaptainChat = gameState.canCaptainChat || { alpha: true, beta: true }; // Обновляем состояние canCaptainChat
-
-    // Проверяем, является ли текущий пользователь создателем комнаты
-    window.isCreator = gameState.creator === socket.id;
-
-    console.log(`Обновлено состояние canCaptainChat:`, window.canCaptainChat);
-
-    // Обновляем текущий ход
-    currentTurn = gameState.currentTurn || 'beta';
-    hasSentMessage = gameState.hasSentMessage || false;
-
-    // Обновляем интерфейс
-    updateUI();
-
-    // Если есть слова, обновляем доску
-    if (window.words && window.words.length > 0) {
-        createBoard(window.words);
+// Обработчик события messageSent
+socket.on('messageSent', (data) => {
+    const chatInputContainer = document.getElementById(`chatInputContainer${data.team.charAt(0).toUpperCase() + data.team.slice(1)}`);
+    if (chatInputContainer) {
+        chatInputContainer.style.display = 'none'; // Скрываем поле ввода
     }
-
-    // Обновляем состояние карт
-    const cards = document.querySelectorAll('.card');
-    cards.forEach(card => {
-        const word = card.querySelector('.card-text').textContent;
-        const cardState = gameState.board.find(c => c.word === word);
-        if (cardState && cardState.isDisabled) {
-            card.classList.add('disabled');
-            card.removeEventListener('click', handleCardClick);
-        }
-    });
-
-    // Обновляем отображение раунда
-    updateRoundDisplay();
-
-    // Обновляем видимость чатов и полей ввода
-    updateChatVisibility();
 });
-
-function updatePlayersList(players) {
-    const playersListContainer = document.getElementById('playersList');
-    if (!playersListContainer) {
-        console.error('Элемент для отображения списка игроков не найден');
-        return;
-    }
-
-    playersListContainer.innerHTML = '';
-
-    players.forEach(player => {
-        const playerElement = document.createElement('div');
-        playerElement.textContent = player.nickname;
-        playerElement.style.color = player.color || '#000';
-        playersListContainer.appendChild(playerElement);
-    });
-}
-
-let isNicknameErrorShown = false; // Флаг для отслеживания показа сообщения об ошибке
-
-let isRoomErrorShown = false; // Флаг для отслеживания показа сообщения об ошибке для комнаты
-
 
 // Обработка ошибки "Комната уже существует"
 socket.on('roomExists', (roomName) => {
@@ -1557,6 +1507,89 @@ socket.on('roomCreated', (roomName) => {
 socket.on('roomNotFound', (roomId) => {
     showToast(`Комната "${roomId}" не существует. Проверьте правильность ввода.`, "#e74c3c");
 });
+
+// Обработка ошибки "Комната не найдена"
+socket.on('roomNotFound', (roomId) => {
+    showToast(`Комната "${roomId}" не существует. Проверьте правильность ввода.`, "#e74c3c");
+});
+
+// Обработка получения сообщения
+socket.on('receiveMessage', (data) => {
+    const chatBox = document.getElementById(`chatBox${data.team.charAt(0).toUpperCase() + data.team.slice(1)}`);
+    const messageElement = document.createElement('div');
+    messageElement.textContent = `${data.sender}: ${data.message}`;
+    chatBox.appendChild(messageElement);
+    chatBox.scrollTop = chatBox.scrollHeight; // Прокрутка вниз
+});
+
+socket.on('updateGameState', (gameState) => {
+    console.log('Received game state:', gameState);
+
+    window.words = gameState.words || [];
+    cardColors = gameState.cardColors || {};
+    leaders = gameState.leaders || {};
+    players = gameState.teamPlayers || {};
+    teamNames = gameState.teamNames || {};
+    window.canAssistantsSelectCards = gameState.canAssistantsSelectCards || false;
+    window.canCaptainChat = gameState.canCaptainChat || { alpha: true, beta: true }; // Обновляем состояние canCaptainChat
+
+    // Проверяем, является ли текущий пользователь создателем комнаты
+    window.isCreator = gameState.creator === socket.id;
+
+    console.log(`Обновлено состояние canCaptainChat:`, window.canCaptainChat);
+
+    // Обновляем текущий ход
+    currentTurn = gameState.currentTurn || 'beta';
+    hasSentMessage = gameState.hasSentMessage || false;
+
+
+
+    // Если есть слова, обновляем доску
+    if (window.words && window.words.length > 0) {
+        createBoard(window.words);
+    }
+
+    // Обновляем состояние карт
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(card => {
+        const word = card.querySelector('.card-text').textContent;
+        const cardState = gameState.board.find(c => c.word === word);
+        if (cardState && cardState.isDisabled) {
+            card.classList.add('disabled');
+            card.removeEventListener('click', handleCardClick);
+        }
+    });
+ 
+    // Обновляем интерфейс
+    updateUI();
+    updateRoundDisplay();
+    updateChatVisibility();
+    updateRoundDisplay(gameState.currentRound, gameState.currentTurn);
+    updateTimerDisplay(gameState.timer);
+
+});
+
+function updatePlayersList(players) {
+    const playersListContainer = document.getElementById('playersList');
+    if (!playersListContainer) {
+        console.error('Элемент для отображения списка игроков не найден');
+        return;
+    }
+
+    playersListContainer.innerHTML = '';
+
+    players.forEach(player => {
+        const playerElement = document.createElement('div');
+        playerElement.textContent = player.nickname;
+        playerElement.style.color = player.color || '#000';
+        playersListContainer.appendChild(playerElement);
+    });
+}
+
+let isNicknameErrorShown = false; // Флаг для отслеживания показа сообщения об ошибке
+
+let isRoomErrorShown = false; // Флаг для отслеживания показа сообщения об ошибке для комнаты
+
 
 function submitNickname() {
     const nicknameInput = document.getElementById('nicknameInput');
@@ -1600,11 +1633,6 @@ function submitNickname() {
         socket.emit('joinRoom', joinRoomInput, nicknameValue, selectedColor);
     }
 }
-
-// Обработка ошибки "Комната не найдена"
-socket.on('roomNotFound', (roomId) => {
-    showToast(`Комната "${roomId}" не существует. Проверьте правильность ввода.`, "#e74c3c");
-});
 
 function createRoom() {
     const nicknameInput = document.getElementById('nicknameInput');
@@ -1665,13 +1693,6 @@ function selectColor(color) {
     }
 }
 
-// Обработчик события messageSent
-socket.on('messageSent', (data) => {
-    const chatInputContainer = document.getElementById(`chatInputContainer${data.team.charAt(0).toUpperCase() + data.team.slice(1)}`);
-    if (chatInputContainer) {
-        chatInputContainer.style.display = 'none'; // Скрываем поле ввода
-    }
-});
 
 function skipTurn(team) {
     if (!currentRoom) {
@@ -1766,15 +1787,6 @@ function resetTimer(newTime) {
     // Запускаем новый таймер
     startLeaderTimer(newTime);
 }
-
-// Обработка получения сообщения
-socket.on('receiveMessage', (data) => {
-    const chatBox = document.getElementById(`chatBox${data.team.charAt(0).toUpperCase() + data.team.slice(1)}`);
-    const messageElement = document.createElement('div');
-    messageElement.textContent = `${data.sender}: ${data.message}`;
-    chatBox.appendChild(messageElement);
-    chatBox.scrollTop = chatBox.scrollHeight; // Прокрутка вниз
-});
 
 // Обновление видимости чата
 function updateChatVisibility() {
